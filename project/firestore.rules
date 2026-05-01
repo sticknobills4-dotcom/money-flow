@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * CORE PHILOSOPHY
+     * This ruleset implements a strict Path-Based Ownership model. Security is centered 
+     * around the user's unique identifier (UID). Data is organized hierarchically 
+     * to ensure that users can only access information stored within their own data tree.
+     */
+
+    // --- Helper Functions ---
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // --- Collection Rules ---
+
+    match /users/{userId} {
+      // Allow the user to manage their own profile document
+      allow get, write: if isOwner(userId);
+      
+      // Explicitly allow listing the users collection if filtered by UID
+      allow list: if isOwner(userId);
+
+      /**
+       * @description Rules for transactions.
+       * Includes all financial records (income, expense, transfer).
+       */
+      match /transactions/{transactionId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      /**
+       * @description Rules for financial accounts.
+       */
+      match /accounts/{accountId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      /**
+       * @description Rules for budgets.
+       */
+      match /budgets/{budgetId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+  }
+}

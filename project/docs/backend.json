@@ -1,0 +1,86 @@
+
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Stores profile information for an application user.",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "email"]
+    },
+    "Transaction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Transaction",
+      "type": "object",
+      "description": "Represents a single financial transaction (Income, Expense, or Transfer).",
+      "properties": {
+        "id": { "type": "string" },
+        "amount": { "type": "number" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "type": { "type": "string", "enum": ["income", "expense", "transfer"] },
+        "accountId": { "type": "string" },
+        "toAccountId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["amount", "category", "date", "type", "accountId"]
+    },
+    "Account": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Account",
+      "type": "object",
+      "description": "A financial account belonging to a user.",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "balance": { "type": "number" },
+        "type": { "type": "string", "enum": ["Bank", "Cash", "Credit Card", "Other"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "balance", "type"]
+    },
+    "Budget": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Budget",
+      "type": "object",
+      "description": "A monthly budget for a specific category.",
+      "properties": {
+        "id": { "type": "string" },
+        "category": { "type": "string" },
+        "limitAmount": { "type": "number" },
+        "month": { "type": "number" },
+        "year": { "type": "number" }
+      },
+      "required": ["category", "limitAmount", "month", "year"]
+    }
+  },
+  "auth": {
+    "providers": ["password"]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/backend/entities/UserProfile" },
+      "description": "User profile document."
+    },
+    "/users/{userId}/transactions/{transactionId}": {
+      "schema": { "$ref": "#/backend/entities/Transaction" },
+      "description": "User transactions."
+    },
+    "/users/{userId}/accounts/{accountId}": {
+      "schema": { "$ref": "#/backend/entities/Account" },
+      "description": "User financial accounts."
+    },
+    "/users/{userId}/budgets/{budgetId}": {
+      "schema": { "$ref": "#/backend/entities/Budget" },
+      "description": "User monthly budgets."
+    }
+  }
+}
